@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/i_pay/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/i_pay/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/i_pay/build" />
+      <excludeFolder url="file://$MODULE_DIR$/i_pay/windows/flutter/ephemeral/.plugin_symlinks/flutter_tts/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/i_pay/windows/flutter/ephemeral/.plugin_symlinks/flutter_tts/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/i_pay/windows/flutter/ephemeral/.plugin_symlinks/flutter_tts/build" />
+      <excludeFolder url="file://$MODULE_DIR$/i_pay/windows/flutter/ephemeral/.plugin_symlinks/flutter_tts/example/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/i_pay/windows/flutter/ephemeral/.plugin_symlinks/flutter_tts/example/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/i_pay/windows/flutter/ephemeral/.plugin_symlinks/flutter_tts/example/build" />
+      <excludeFolder url="file://$MODULE_DIR$/i_pay/windows/flutter/ephemeral/.plugin_symlinks/speech_to_text_windows/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/i_pay/windows/flutter/ephemeral/.plugin_symlinks/speech_to_text_windows/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/i_pay/windows/flutter/ephemeral/.plugin_symlinks/speech_to_text_windows/build" />
+      <excludeFolder url="file://$MODULE_DIR$/i_pay/windows/flutter/ephemeral/.plugin_symlinks/speech_to_text_windows/example/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/i_pay/windows/flutter/ephemeral/.plugin_symlinks/speech_to_text_windows/example/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/i_pay/windows/flutter/ephemeral/.plugin_symlinks/speech_to_text_windows/example/build" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Dart SDK" level="project" />
+    <orderEntry type="library" name="Dart Packages" level="project" />
+  </component>
+</module>
