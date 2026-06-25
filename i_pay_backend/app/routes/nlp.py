@@ -1,134 +1,223 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import Optional, List
 
 from ..database import get_db
 from ..dependencies import get_current_user
-from ..services.nlp_service import NLPService
+from ..services.nlp_service import NLPService, translate_text
+
 from ..services.transaction_service import TransactionService
+from ..services.account_service import AccountService
+from ..services.cibil_score_service import CibilService
+from ..services.loan_apply_service import LoanApplyService
+from ..services.bill_pay_service import BillPayService
+from ..services.recharge_service import RechargeService
+from ..services.profile_service import ProfileService
+from ..services.analytics_service import AnalyticsService
+
 from ..models.user_model import User
 from ..models.account_model import Account
-from ..models.transaction_model import Transaction
-from ..schemas.nlp_schema import NLPResponse
-from ..services.translate_service import translate_text
+from ..schemas.nlp_schema import NLPResponse, NLPRequest
 
 router = APIRouter()
 
 nlp = NLPService()
-svc = TransactionService()
 
 
 @router.post("/nlp", response_model=NLPResponse)
 def nlp_assistant(
-        text: str,
+        request: NLPRequest,
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
 ):
+    txn_svc = TransactionService()
+    account_svc = AccountService()
+    cibil_svc = CibilService()
+    loan_svc = LoanApplyService()
+    bill_svc = BillPayService()
+    recharge_svc = RechargeService()
+    profile_svc = ProfileService()
+    analytics_svc = AnalyticsService(db)
 
+    parsed = nlp.parse(request.text)
 
-    parsed = nlp.parse(text)
-    lang = parsed["lang"]
-    intent = parsed["intent"]
+    lang = parsed.get("lang", "en")
+    intent = parsed.get("intent", "unknown")
     amount = parsed.get("amount")
     receiver_name = parsed.get("receiver")
 
-    def tr(msg: str):
-        return translate_text(msg, lang)
+    def tr(msg: str) -> str:
+        translated = translate_text(msg, lang)
+        return translated if translated and translated.strip() else msg
 
+    def safe_speech(msg: str) -> str:
+        """Guarantee non-empty speech"""
+        text = tr(msg)
+        return text if text.strip() else tr("Okay.")
+
+    # --------------------------------------------------
+    # ACCOUNT VALIDATION
+    # --------------------------------------------------
+    if not request.account_id:
+        return NLPResponse(
+            speech=safe_speech("Please select an account first."),
+            intent="select_account",
+            navigate="account_select_page"
+        )
+
+    account = db.query(Account).filter(
+        Account.id == request.account_id,
+        Account.user_id == current_user.id
+    ).first()
+
+    if not account:
+        raise HTTPException(status_code=403, detail="Invalid account")
+
+    # --------------------------------------------------
+    # PROFILE
+    # --------------------------------------------------
+    if intent == "profile":
+        speech=safe_speech("Opening your profile.")
+        print("🔥 BACKEND SPEECH:", speech)
+        return NLPResponse(
+            speech=speech,
+            intent=intent,
+            navigate="profile_page",
+            extra={"account_id": account.id}
+        )
+
+    # --------------------------------------------------
+    # CHECK BALANCE (PIN)
+    # --------------------------------------------------
     if intent == "check_balance":
-        account = db.query(Account).filter(Account.user_id == current_user.id).first()
-        if not account:
-            raise HTTPException(status_code=404, detail="User account not found")
-
         return NLPResponse(
-            message=tr(f"Your balance is {account.balance} rupees."),
-            intent=intent
+            speech=safe_speech("Please enter your PIN to check your balance."),
+            intent=intent,
+            navigate="pin_page",
+            extra={
+                "action": "check_balance",
+                "account_id": account.id
+            }
         )
 
+    # --------------------------------------------------
+    # SEND MONEY
+    # --------------------------------------------------
     if intent == "send_money":
-        if not amount:
+        if not amount or not receiver_name:
             return NLPResponse(
-                message=tr("Please specify the amount to send."),
-                intent=intent
-            )
-
-        if not receiver_name:
-            return NLPResponse(
-                message=tr("Please specify the receiver name or VPA."),
-                intent=intent
-            )
-
-        to_acc: Optional[Account] = db.query(Account).filter(
-            Account.vpa_id.ilike(f"{receiver_name}%")
-        ).first()
-
-        if not to_acc:
-            to_acc = db.query(Account).join(Account.user).filter(
-                User.name.ilike(f"%{receiver_name}%")
-            ).first()
-
-        if not to_acc:
-            return NLPResponse(
-                message=tr(f"Receiver '{receiver_name}' not found."),
-                intent=intent
-            )
-
-        from_acc: Optional[Account] = db.query(Account).filter(
-            Account.user_id == current_user.id
-        ).first()
-
-        if not from_acc:
-            return NLPResponse(
-                message=tr("Your account was not found."),
-                intent=intent
-            )
-
-        # Execute transaction
-        success, msg = svc.perform_transaction(db, from_acc, to_acc, amount)
-        if not success:
-            return NLPResponse(
-                message=tr(msg),
-                intent=intent
+                speech=safe_speech("Please tell me the amount and receiver name."),
+                intent=intent,
+                navigate="transaction_page",
+                extra={"account_id": account.id}
             )
 
         return NLPResponse(
-            message=tr(f"Transaction successful. Sent {amount} rupees to {to_acc.user.name}."),
-            intent=intent
+            speech=safe_speech("Please enter your PIN to confirm the payment."),
+            intent=intent,
+            navigate="pin_page",
+            extra={
+                "action": "send_money",
+                "amount": amount,
+                "receiver": receiver_name,
+                "account_id": account.id
+            }
         )
 
+    # --------------------------------------------------
+    # TRANSACTION HISTORY
+    # --------------------------------------------------
     if intent == "transaction_history":
-        history: List[Transaction] = svc.get_last_transactions(db, user_id=current_user.id, limit=5)
+        history = txn_svc.get_last_transactions(
+            db=db,
+            account_id=account.id,
+            limit=5
+        )
 
         if not history:
             return NLPResponse(
-                message=tr("You do not have any recent transactions."),
-                intent=intent
+                speech=safe_speech("You have no recent transactions."),
+                intent=intent,
+                navigate="history_page",
+                extra={"account_id": account.id}
             )
 
-        spoken = "Here are your last transactions: "
-        for t in history:
-            spoken += f"{t.amount} rupees to {t.receiver_name}. "
-
-        return NLPResponse(
-            message=tr(spoken),
-            intent=intent
-        )
-    if intent == "add_account":
-        return NLPResponse(
-            message=tr("Please provide account number, IFSC code, and account holder name."),
-            intent=intent
+        spoken = "; ".join(
+            f"{t.amount} rupees on {t.timestamp.strftime('%d %b')}"
+            for t in history
         )
 
+        return NLPResponse(
+            speech=safe_speech(f"Your recent transactions are: {spoken}."),
+            intent=intent,
+            navigate="history_page",
+            extra={"account_id": account.id}
+        )
+
+    # --------------------------------------------------
+    # CIBIL SCORE
+    # --------------------------------------------------
+    if intent == "cibil_score":
+        report = cibil_svc.get_score(db=db, account_id=account.id)
+
+        return NLPResponse(
+            speech=safe_speech("Your credit score details are ready."),
+            intent=intent,
+            navigate="cibil_page",
+            extra={
+                "account_id": account.id,
+                "cibil_report": report
+            }
+        )
+
+    if intent == "analytics":
+        report = analytics_svc.generate_report(account_id=account.id)
+
+        return NLPResponse(
+            speech=safe_speech("Opening analytics."),
+            intent=intent,
+            navigate="analytics_page",
+            extra={
+                "account_id": account.id,
+                "analytics": report
+            }
+        )
+
+    # --------------------------------------------------
+    # SIMPLE NAVIGATION (FIXED)
+    # --------------------------------------------------
+    page_map = {
+        "add_account": ("add_account_page", "Opening add account page."),
+        "bill_pay": ("bill_pay_page", "Opening bill payment."),
+        "loan_apply": ("loan_page", "Opening loan application."),
+        "bank_transfer": ("bank_transfer_page", "Opening bank transfer page."),
+        "recharge_pay": ("recharge_page", "Opening recharge."),
+    }
+
+    if intent in page_map:
+        page, msg = page_map[intent]
+        return NLPResponse(
+            speech=safe_speech(msg),
+            intent=intent,
+            navigate=page,
+            extra={"account_id": account.id}
+        )
+
+    # --------------------------------------------------
+    # HELP
+    # --------------------------------------------------
     if intent == "help":
         return NLPResponse(
-            message=tr(
-                "You can ask: what is my balance, send money, show transaction history, "
-                "add account, or help."
+            speech=safe_speech(
+                "You can say check balance, send money, show history, "
+                "check credit score, pay bills, apply for loans, or recharge."
             ),
             intent=intent
         )
 
+    # --------------------------------------------------
+    # UNKNOWN (SAFE)
+    # --------------------------------------------------
     return NLPResponse(
-        message=tr("Sorry, I did not understand that. Please say again."),
+        speech=safe_speech("Sorry, I did not understand that. Please try again."),
         intent="unknown"
     )

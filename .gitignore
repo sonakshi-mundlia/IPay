@@ -1,0 +1,38 @@
+# Logs
+*.log
+
+# IDE / Editor
+.idea/
+.vscode/
+*.iml
+*.swp
+
+# Flutter/Dart
+.dart_tool/
+.packages
+.pub/
+build/
+
+# Android
+android/.gradle/
+android/local.properties
+*.keystore
+*.jks
+
+# iOS
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+
+# macOS
+macos/Pods/
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Environment files
+.env
+.env.*
+

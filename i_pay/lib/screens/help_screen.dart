@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../services/stt_service.dart';
 import '../services/tts_service.dart';
 import '../services/api_service.dart';
+import '../voice/voice_handler.dart';
+import '../models/voice_model.dart';
 
 class HelpScreen extends StatefulWidget {
   const HelpScreen({super.key});
@@ -34,29 +36,50 @@ class _HelpScreenState extends State<HelpScreen> {
     },
   ];
 
-  @override
-  void initState() {
-    super.initState();
-    STTService.initialize();
-  }
+  /// Start or stop the mic
+  Future<void> onMicTap() async {
+    if (isListening) {
+      await STTService.stopListening();
+      if (!mounted) return;
+      setState(() => isListening = false);
+      return;
+    }
 
-  Future startListening() async {
     setState(() => isListening = true);
 
-    await STTService.startListening((text) async {
-      recognizedText = text;
+    await STTService.startListening((String text) async {
+      print("STT callback fired with text: $text");
+      if (!mounted) return;
+
+      // Update recognized text safely on platform thread
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        setState(() => recognizedText = text);
+      });
 
       if (text.isNotEmpty) {
         await STTService.stopListening();
+        if (!mounted) return;
+        setState(() => isListening = false);
 
-        final reply = await ApiService().processVoiceCommand(text);
+        // Call backend to process voice command
+        final VoiceResponse reply =
+        await ApiService().processVoiceCommand(text);
 
-        setState(() {
-          responseText = reply;
-          isListening = false;
+        // Update assistant response safely
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          setState(() => responseText = reply.speech);
         });
 
-        await TTSService.speak(reply);
+        // Speak response
+        await TTSService.speak(reply.speech);
+
+        // Auto-navigation
+        await VoiceHandler.handleRecognition(context: context, response: reply);
+      } else {
+        if (!mounted) return;
+        setState(() => isListening = false);
       }
     });
   }
@@ -69,6 +92,7 @@ class _HelpScreenState extends State<HelpScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            // FAQs
             Expanded(
               child: ListView.builder(
                 itemCount: faqs.length,
@@ -89,11 +113,11 @@ class _HelpScreenState extends State<HelpScreen> {
                 },
               ),
             ),
-
             const SizedBox(height: 10),
 
+            // Voice panel
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.blueGrey.shade50,
                 borderRadius: BorderRadius.circular(12),
@@ -102,19 +126,17 @@ class _HelpScreenState extends State<HelpScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text("You said:", style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text("You said:", style: TextStyle(fontWeight: FontWeight.bold)),
                   Text(recognizedText.isEmpty ? "..." : recognizedText),
-
                   const SizedBox(height: 8),
-
-                  Text("Assistant:", style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text("Assistant:", style: TextStyle(fontWeight: FontWeight.bold)),
                   Text(responseText.isEmpty ? "..." : responseText),
-
                   const SizedBox(height: 12),
-
+                  // Mic button
                   Center(
                     child: FloatingActionButton(
-                      onPressed: startListening,
+                      onPressed: onMicTap,
+                      backgroundColor: isListening ? Colors.red : Colors.blue,
                       child: Icon(isListening ? Icons.mic : Icons.mic_none),
                     ),
                   ),

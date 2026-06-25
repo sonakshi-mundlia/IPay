@@ -1,11 +1,16 @@
 from passlib.context import CryptContext
 from jose import jwt, JWTError
 from datetime import datetime, timedelta
+from fastapi import HTTPException
+from ..schemas.user_schema import UserCreate
+from sqlalchemy.orm import Session
 from ..models.user_model import User
+from ..config import SECRET_KEY
+
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-SECRET_KEY = "your-secret-key"
+SECRET_KEY=SECRET_KEY
 ALGORITHM = "HS256"
 
 blacklist = set()
@@ -44,26 +49,40 @@ class AuthService:
         except JWTError:
             return None
 
-    def register_user(self, db, user):
-        hashed_password = self.hash_password(user.password)
-        hashed_pin = self.hash_password(user.transaction_pin)
+    def register_user(self, db: Session, user_data: UserCreate):
+        existing_user = db.query(User).filter(
+            (User.email == user_data.email) | (User.mobile == user_data.mobile)
+        ).first()
+        if existing_user:
+            raise HTTPException(status_code=400, detail="User already exists")
+
+        hashed_password = pwd_context.hash(user_data.password)
+
         new_user = User(
-            name=user.name,
-            email=user.email,
-            mobile=user.mobile,
-            hashed_password=hashed_password,
-            transaction_pin=hashed_pin
+            name=user_data.name,
+            email=user_data.email,
+            mobile=user_data.mobile,
+            hashed_password=hashed_password
         )
+
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
         return new_user
 
-    def authenticate_user(self, db, email_or_mobile: str, password: str):
-        user = db.query(User).filter(
-            (User.email == email_or_mobile) | (User.mobile == email_or_mobile)
-        ).first()
+    def authenticate_user(self, db: Session, email: str | None, mobile: int | None, password: str):
+        if email is None and mobile is None:
+            return None
+        if email:
+            user = db.query(User).filter(User.email == email).first()
+        elif mobile:
+            user = db.query(User).filter(User.mobile == mobile).first()
+        else:
+            return None
+
         if not user or not self.verify_password(password, user.hashed_password):
             return None
+
         return user
+
 

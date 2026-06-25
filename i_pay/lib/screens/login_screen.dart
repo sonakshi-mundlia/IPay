@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
+import '../services/api_service.dart';
 import 'home_screen.dart';
 import 'register_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -9,9 +10,8 @@ class LoginScreen extends StatefulWidget {
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
-
 class _LoginScreenState extends State<LoginScreen> {
-  final authService = AuthService();
+  final apiService = ApiService();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController mobileController = TextEditingController();
@@ -19,19 +19,65 @@ class _LoginScreenState extends State<LoginScreen> {
   bool loading = false;
 
   void login() async {
+    final email = emailController.text.trim();
+    final mobileText = mobileController.text.trim();
+    final password = passwordController.text.trim();
+
+    int? mobileInt;
+    if (mobileText.isNotEmpty) {
+      mobileInt = int.tryParse(mobileText);
+      if (mobileInt == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Invalid mobile number")),
+        );
+        return;
+      }
+    }
+
+    if (email.isEmpty && mobileText.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Enter email OR mobile")),
+      );
+      return;
+    }
+
+    if (password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Enter your password")),
+      );
+      return;
+    }
+
     setState(() => loading = true);
-    final success = await authService.login(emailController.text, passwordController.text);
+
+    final result = await apiService.login(
+      email: email.isNotEmpty ? email : null,
+      mobile: mobileInt,
+      password: password,
+    );
+
     setState(() => loading = false);
 
-    if (success) {
+    if (result == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Invalid email/mobile or password")),
+      );
+      return;
+    }
+
+    if (result["access_token"] != null) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString("auth_token", result["access_token"]);
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const HomeScreen()),
       );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Login failed")));
     }
+
+
   }
+
 
   @override
   Widget build(BuildContext context) {

@@ -7,7 +7,6 @@ class TransactionCreate(BaseModel):
     amount: float
     category: str
 
-
 class TransactionResponse(BaseModel):
     id: int
     from_name: str

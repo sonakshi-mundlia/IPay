@@ -13,19 +13,11 @@ class MicButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
+      backgroundColor: isListening ? Colors.red : Colors.blue,
       onPressed: onTap,
-      backgroundColor: isListening ? Colors.redAccent : Colors.blueAccent,
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        transitionBuilder: (child, animation) => ScaleTransition(
-          scale: animation,
-          child: child,
-        ),
-        child: Icon(
-          isListening ? Icons.mic : Icons.mic_none,
-          key: ValueKey(isListening),
-          size: 30,
-        ),
+      child: Icon(
+        isListening ? Icons.mic_off : Icons.mic,
+        color: Colors.white,
       ),
     );
   }

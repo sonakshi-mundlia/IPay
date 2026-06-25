@@ -1,0 +1,177 @@
+{
+  "my_accounts": "منهنجا اڪائونٽ",
+  "no_accounts": "ڪو به اڪائونٽ نه مليو",
+  "unknown_bank": "نامعلوم بئنڪ",
+  "vpa": "VPA: ",
+  "manage_transactions": "ٽرانزيڪشن جو انتظام ڪريو",
+  "update_upi_pin": "UPI PIN کي اپڊيٽ ڪريو",
+  "check_balance": "بيلنس چيڪ ڪريو",
+  "cibil_score": "CIBIL اسڪو",
+  "delete_account": "اڪائونٽ حذف ڪريو",
+  "add_account": "اڪائونٽ شامل ڪريو",
+  "add_bank_account": "بئنڪ اڪائونٽ شامل ڪريو",
+  "bank_account_details": "بئنڪ اڪائونٽ جا تفصيل",
+  "bank_name": "بئنڪ جو نالو",
+  "account_number": "اڪائونٽ نمبر",
+  "ifsc_code": "IFSC ڪوڊ",
+  "upi_vpa_id": "UPI VPA ID",
+  "mobile_number": "موبائل نمبر",
+  "email": "اي ميل",
+  "balance_optional": "بيلنس (اختياري)",
+  "transaction_pin": "ٽرانزيڪشن PIN",
+  "fill_all_fields": "مهرباني ڪري سڀ فيلڊ ڀريو",
+  "account_added_success": "اڪائونٽ ڪاميابي سان شامل ٿيو",
+  "account_add_failed": "اڪائونٽ شامل ڪرڻ ۾ ناڪامي",
+
+  "bankTransfer": "بئنڪ ٽرانسفر",
+  "noActiveAccount": "ڪو به فعال اڪائونٽ منتخب نه ٿيو",
+  "selectBankAccount": "بئنڪ اڪائونٽ منتخب ڪريو",
+  "accountName": "اڪائونٽ جو نالو",
+  "ifscCode": "IFSC ڪوڊ",
+  "amount": "رقم",
+  "pin": "PIN",
+  "category": "درجو",
+  "transfer": "ٽرانسفر",
+  "billPayment": "بل جي ادائيگي",
+  "shopping": "خريداري",
+  "payNow": "هاڻي ادائيگي ڪريو",
+  "selectAccountError": "مهرباني ڪري بئنڪ اڪائونٽ منتخب ڪريو",
+  "amountPinError": "صحیح رقم ۽ 4 انگن جو PIN ڀريو",
+  "transactionSuccess": "ٽرانزيڪشن ڪامياب",
+  "transactionFailed": "ٽرانزيڪشن ناڪام",
+
+  "payBillTitle": "{billName} ادا ڪريو",
+  "billTypeLabel": "بل قسم: {billName}",
+  "customerIdLabel": "گراهڪ ID / موبائل نمبر",
+  "proceedToPay": "ادائيگي لاءِ اڳتي وڌو",
+  "fillAllFieldsError": "سڀ فيلڊ ڀريو",
+  "requestAccepted": "درخواست قبول ڪئي وئي!",
+
+  "bills": {
+    "title": "بل جي ادائيگي",
+    "electricity": "بجلي جو بل",
+    "water": "پاڻي جو بل",
+    "gas": "گئس جو بل",
+    "broadband": "براڊ بينڊ بل",
+    "landline": "لينڊ لائن بل",
+    "dth": "DTH بل",
+    "society": "سوسائٽي فيس",
+    "credit_card": "ڪريڊٽ ڪارڊ بل"
+  },
+  "analytics": {
+    "analytics_dashboard": "تجزياتي ڊيش بورڊ",
+    "no_account_selected": "ڪو به اڪائونٽ چونڊيو ناهي ويو",
+    "cash_flow": "نقد وهڪرو",
+    "category_summary": "درجي جو خلاصو",
+    "income_expense_patterns": "آمدني ۽ خرچ جا نمونا",
+    "financial_health": "مالي صحت",
+    "fraud_alerts": "ڌوڪيبازي جي خبرداريون",
+    "income": "آمدني",
+    "expense": "خرچ",
+    "net": "خالص",
+    "healthy_cash_flow": "صحت مند نقد وهڪرو",
+    "neutral": "معمولي",
+    "overspending_alert": "وڌيڪ خرچ جي خبرداري",
+    "net_balance": "خالص بيلنس",
+    "no_category_data": "ڪو به درجي وارو ڊيٽا موجود ناهي",
+    "debt_to_income_ratio": "قرض-آمدني تناسب",
+    "savings_rate": "بچت جي شرح",
+    "average_daily_balance": "اوسط روزانو بيلنس"
+  },
+
+  "check_balance": {
+    "title": "بيلنس چيڪ ڪريو",
+    "enter_pin": "UPI PIN ڀريو",
+    "check_balance_btn": "بيلنس ڏسو",
+    "invalid_pin": "صحیح 4 يا 6 انگن جو UPI PIN ڀريو",
+    "available_balance": "دستياب بيلنس",
+    "account": "اڪائونٽ"
+  },
+
+  "cibil": {
+    "title": "توھانجو CIBIL اسڪو",
+    "failed": "CIBIL اسڪو لوڊ ڪرڻ ۾ ناڪامي",
+    "what_means": "ھي اسڪو ڇا ڏيکاري ٿو؟",
+    "why_score": "توھانجو اسڪو ائين ڇو آهي؟",
+    "pros": "فائدا",
+    "cons": "نقصان"
+  },
+
+  "errors": {
+    "something_wrong": "ڪجهه غلط ٿي ويو"
+  },
+
+  "help": {
+    "title": "مدد مرڪز",
+    "you_said": "توهان چيو:",
+    "assistant": "اسسٽنٽ:",
+    "listening": "سنجي رهيو آهي...",
+    "faq_add_account_q": "نئون اڪائونٽ ڪيئن شامل ڪجي؟",
+    "faq_add_account_a": "Accounts سيڪشن ڏانهن وڃو ۽ '+' بٽڻ دٻايو. VPA، اڪائونٽ نمبر ۽ IFSC ڪوڊ ڀريو.",
+    "faq_check_balance_q": "بيلنس ڪيئن چيڪ ڪجي؟",
+    "faq_check_balance_a": "وائس اسسٽنٽ کي چوندا: 'منهنجو بيلنس ڏيکار' يا هوم اسڪرين تي ڏسو.",
+    "faq_send_money_q": "پئسا ڪيئن موڪليو؟",
+    "faq_send_money_a": "وائس اسسٽنٽ استعمال ڪريو: 'روهن کي 500 موڪليو' يا Transactions اسڪرين استعمال ڪريو.",
+    "faq_tx_failed_q": "لین دین ناکام ٿي وڃي ته ڇا ڪجي؟",
+    "faq_tx_failed_a": "اڪائونٽ بيلنس ۽ وصول ڪندڙ جون تفصيلون چيڪ ڪريو. مسئلو هجي ته مدد مرڪز سان رابطو ڪريو."
+  },
+
+  "voice": {
+    "mic_start": "سڻڻ شروع ڪريو",
+    "mic_stop": "سڻڻ بند ڪريو"
+  },
+
+  "home": {
+    "title": "هوم",
+    "select_account": "مهرباني ڪري اڪائونٽ چونڊيو",
+    "recent_contacts": "تازا رابطا",
+    "no_recent_tx": "ڪو به تازو لين دين ناهي.\nپنهنجي پهرين لين دين شروع ڪريو!",
+    "failed_voice": "وائس ڪمانڊ سمجهه ۾ نه آئي"
+  },
+
+  "actions": {
+    "scan_qr": "QR اسڪين ڪريو",
+    "pay_anyone": "ڪنهن کي به ادائيگي ڪريو",
+    "bank_transfer": "بئنڪ ٽرانسفر",
+    "loans": "قرض",
+    "cibil_score": "CIBIL اسڪو",
+    "bills": "بل",
+    "recharge": "ريچارج",
+    "recharges": "ريچارجز"
+  },
+
+  "nav": {
+    "home": "هوم",
+    "analytics": "تجزيو",
+    "transaction": "لين دين",
+    "history": "تاريخ",
+    "accounts": "اڪائونٽس",
+    "profile": "پروفائل"
+  },
+
+  "language": {
+    "select": "ٻولي چونڊيو",
+    "english": "انگريزي",
+    "hindi": "هندي",
+    "bengali": "بنگالي",
+    "telugu": "تلگو",
+    "marathi": "مراٺي",
+    "tamil": "تمل",
+    "urdu": "اردو",
+    "gujarati": "گجراتي",
+    "kannada": "ڪنڙ",
+    "malayalam": "مالايالم",
+    "odia": "اوڙيا",
+    "punjabi": "پنجابي",
+    "assamese": "آسامي",
+    "maithili": "ميٿلي",
+    "sanskrit": "سنسكريت",
+    "kashmiri": "ڪشميري",
+    "nepali": "نيپالي",
+    "sindhi": "سندهي",
+    "konkani": "ڪونڪني",
+    "dogri": "ڊوگري",
+    "manipuri": "مائيتي لون",
+    "santali": "سنتالي"
+  }
+}

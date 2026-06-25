@@ -7,10 +7,11 @@ import uuid
 from datetime import datetime, timedelta
 from jose import jwt, JWTError
 from passlib.context import CryptContext
+from fastapi import HTTPException
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-SECRET_KEY = "your-secret-key"
+SECRET_KEY = "SECRET_KEY"
 ALGORITHM = "HS256"
 
 blacklist = set()
@@ -32,7 +33,7 @@ class TransactionService:
         return pwd_context.verify(plain, hashed)
 
     @staticmethod
-    def create_jwt(data: dict, expires_minutes: int = 525600):  # 1 year default for login
+    def create_jwt(data: dict, expires_minutes: int = 520000):
         to_encode = data.copy()
         expire = datetime.utcnow() + timedelta(minutes=expires_minutes)
         to_encode.update({"exp": expire})
@@ -56,6 +57,8 @@ class TransactionService:
         to_acc = db.query(Account).filter(Account.id == payload.to_account_id).first()
         if not from_acc or not to_acc:
             raise Exception("Account(s) not found")
+        if payload.from_account_id == payload.to_account_id:
+            raise Exception("Cannot send money to the same account")
         if from_acc.balance < payload.amount:
             raise Exception("Insufficient balance")
 
@@ -63,6 +66,8 @@ class TransactionService:
         to_acc.balance += payload.amount
 
         vpa_ref = str(uuid.uuid4())
+
+
 
         tx = Transaction(
             from_account_id=from_acc.id,
@@ -91,11 +96,10 @@ class TransactionService:
         return resp
 
 
-    def get_last_transactions(self, db: Session, user_id: int, limit: int = 5):
+    def get_last_transactions(self, db: Session, account_id: int, limit: int = 5):
         txs = (
             db.query(Transaction)
-            .join(Account, (Transaction.from_account_id == Account.id) | (Transaction.to_account_id == Account.id))
-            .filter(Account.user_id == user_id)
+            .filter((Transaction.from_account_id == Account.id) | (Transaction.to_account_id == Account.id))
             .order_by(Transaction.timestamp.desc())
             .limit(limit)
             .all()
@@ -119,4 +123,3 @@ class TransactionService:
                 )
             )
         return result
-

@@ -12,7 +12,7 @@ class Transaction(Base):
     amount = Column(Float)
     timestamp = Column(DateTime, default=datetime.utcnow)
     vpa_ref = Column(String, unique=True, index=True)
+    category = Column(String, nullable=True)
 
     from_account = relationship("Account", foreign_keys=[from_account_id])
     to_account = relationship("Account", foreign_keys=[to_account_id])
-
